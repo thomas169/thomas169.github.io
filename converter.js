@@ -1,6 +1,9 @@
 // ======================================================
 // Persistent settings / remembered values
 // ======================================================
+"use strict";
+
+let els = {};
 
 const STORAGE_KEYS = {
     input: "rf_input",
@@ -80,11 +83,25 @@ function restoreTextareaSize()
     }
 }
 
-// Load saved values on startup
-loadSettings();
 
+// load stuff then html is done
 window.addEventListener("DOMContentLoaded", () =>
 {
+    // get the doc elements we care about
+    els = {
+        input: document.getElementById("binaryInput"),
+        output: document.getElementById("output"),
+        convertIp: document.getElementById("convertIp"),
+        convertOp: document.getElementById("convertOp"),
+        shiftLvl: document.getElementById("shiftLvl"),
+        shiftDir: document.getElementById("shiftDir"),
+        manchesterMode: document.getElementById("manchesterMode"),
+        diffInit: document.getElementById("diffInit")
+    };
+
+    // Load saved values on startup
+    loadSettings();
+
     const elements = [
         "binaryInput",
         "convertIp",
@@ -98,7 +115,6 @@ window.addEventListener("DOMContentLoaded", () =>
     elements.forEach(id =>
     {
         const el = document.getElementById(id);
-
         el.addEventListener("input", saveSettings);
         el.addEventListener("change", saveSettings);
     });
@@ -112,12 +128,9 @@ window.addEventListener("DOMContentLoaded", () =>
 
     setInterval(() =>
     {
-        if (inputBox.offsetWidth !== lastW ||
-            inputBox.offsetHeight !== lastH)
-        {
+        if (inputBox.offsetWidth !== lastW || inputBox.offsetHeight !== lastH) {
             lastW = inputBox.offsetWidth;
             lastH = inputBox.offsetHeight;
-
             saveSettings();
         }
     }, 500);
@@ -210,32 +223,6 @@ function bitsToHex(bits)
 {
     let padded = bits;
 
-    // only pad to nibble boundary
-    while (padded.length % 4 !== 0)
-        padded = '0' + padded;
-
-    // build continuous hex string
-    let hex = "";
-
-    for (let i = 0; i < padded.length; i += 4) {
-        let nibbleStr = padded.substr(i, 4);
-        let value = parseInt(nibbleStr, 2);
-        hex += value.toString(16).toUpperCase();
-    }
-
-    // group into byte pairs
-    let grouped = [];
-
-    for (let i = 0; i < hex.length; i += 2)
-        grouped.push(hex.substr(i, 2));
-
-    return grouped.join(' ');
-}
-
-function bitsToHex(bits)
-{
-    let padded = bits;
-
     while (padded.length % 8 !== 0)
         padded += '0';
 
@@ -269,10 +256,8 @@ function convert()
         }
         out += "Invalid input\n\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 }
-
-
 
 function shiftBits()
 {
@@ -303,7 +288,7 @@ function shiftBits()
         }
         out += "\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 }
 
 function decodeManchester()
@@ -337,7 +322,7 @@ function decodeManchester()
                 "HEX:\n" + bitsToHex(decoded.replace(/\?/g, '0')) + "\n" +
                 "Errors: " + errors + "\n\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 }
 
 function decodeDiffManchester()
@@ -371,7 +356,7 @@ function decodeDiffManchester()
                 "HEX:\n" + bitsToHex(decoded.replace(/\?/g, '0')) + "\n" +
                 "Errors: " + errors + "\n\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 }
 
 
@@ -401,7 +386,7 @@ function encodeManchester()
                 "Manchester Encoded:\n" + encoded + "\n" +
                 "HEX:\n" + bitsToHex(encoded) + "\n\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 }
 
 function encodeDiffManchester()
@@ -436,6 +421,6 @@ function encodeDiffManchester()
                 "Differential Manchester Encoded:\n" + encoded + "\n" +
                 "HEX:\n" + bitsToHex(encoded) + "\n\n";
     }
-    document.getElementById("output").textContent = out;
+    document.getElementById("output").textContent = out.trim();
 
 }
